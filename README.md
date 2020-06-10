@@ -40,6 +40,6 @@ Salary - Our prediction Target
 
 ### Exploratory Data Analysis
 
-Below is an overview of the Train Dataframe (after merging the 'train_features' and 'train_target' files)
+Below is an overview of the Train Dataframe (after merging the 'train_features' and 'train_target' files):
 
-https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Train%20Dataframe%20head.jpg
+
