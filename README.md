@@ -42,4 +42,4 @@ Salary - Our prediction Target
 
 Below is an overview of the Train Dataframe (after merging the 'train_features' and 'train_target' files):
 
-
+![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Train%20Dataframe%20head.jpg)
