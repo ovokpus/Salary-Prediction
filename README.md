@@ -12,6 +12,7 @@ A practical use of this is for a HR Department of a large company or a Consultin
 It also finds use in getting to understand current realities in the job market and how businesses can leverage this in order to secure high quality talent, whilst keeping hiring costs low.
 
 The primary tool used for this project is Python 3, along with an extensive array of libraries and packages available for the manipulation of data,and development of predictive modeling algorithms.
+
 ---
 
 This Project is broken down into the following Sections:
@@ -25,6 +26,7 @@ Our twofold goal in this project is to:
 
 
 With Python, we created "Data" and "Plots" classes and objects to aid us in extracting, manipulating the given data. We also created "FeatEng" and "ModelEvaluation" Classes to help us with creating new features and selecting the best prediction model for employee salaries.
+
 ---
 
 ### Dataset Information
