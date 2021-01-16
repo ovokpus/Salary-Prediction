@@ -1,5 +1,10 @@
-# Salary Prediction Project (Python)
+# Salary Prediction Portfolio Project (Python)
+---
+<div>
+	<img src="https://github.com/ovokpus/Salary-Prediction/blob/master/images/readmepic.jpeg">
+</div>
 
+---
 Our goal in this project is to examine this dataset of job postings, and predict salaries for a new set of postings. This will involve building a model to predict the salaries given in the test dataset.
 
 A practical use of this is for a HR Department of a large company or a Consulting Outfit that needs real-time solutions in order to make effective employment offers to potential hires.
@@ -7,6 +12,7 @@ A practical use of this is for a HR Department of a large company or a Consultin
 It also finds use in getting to understand current realities in the job market and how businesses can leverage this in order to secure high quality talent, whilst keeping hiring costs low.
 
 The primary tool used for this project is Python 3, along with an extensive array of libraries and packages available for the manipulation of data,and development of predictive modeling algorithms.
+---
 
 This Project is broken down into the following Sections:
 
@@ -19,6 +25,7 @@ Our twofold goal in this project is to:
 
 
 With Python, we created "Data" and "Plots" classes and objects to aid us in extracting, manipulating the given data. We also created "FeatEng" and "ModelEvaluation" Classes to help us with creating new features and selecting the best prediction model for employee salaries.
+---
 
 ### Dataset Information
 
@@ -38,6 +45,7 @@ milesFromMetropolis - distance of employee residence from the nearest large urba
 
 Salary - Our prediction Target 
 
+---
 ## Exploratory Data Analysis
 
 This involves looking at the Data Summaries and Visualizations in order to:
@@ -85,12 +93,14 @@ After inspecting the Salary Distribution Boxplot, we can see the existence of ou
 We'll accomplish this by defining a "clean_data" method when creating the Feature Engineering Class
 
 
+---
 ## Feature Engineering
 
 By applying label encoding to transform the categorical features and by grouping them. The group statistics were selected as new features: group_mean(mean salary), group_median(median salary), group_min(minimum salary), group_max(maximum salary), group_mad(mean absolute deviation)
 
 Also we removed the zero salary values with a clean_data method.
 
+---
 ## Model Selection and Evaluation
 
 We selected three different Regression Algorithms for Evaluation:
@@ -114,6 +124,7 @@ Key predictors for this model is the group mean salary, followed by yearsExperie
 
 ![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Feature%20Importances.jpg)
 
+---
 ## Conclusion/Next Steps
 
 • Files Saved for further testing/deployment
