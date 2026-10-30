@@ -1,0 +1,10 @@
+.venv
+web
+.git
+**/__pycache__
+legacy
+docs
+images
+slides
+artifacts
+data/test_features.csv
