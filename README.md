@@ -1,133 +1,102 @@
-# Salary Prediction Portfolio Project (Python)
----
-<div>
-	<img src="https://github.com/ovokpus/Salary-Prediction/blob/master/images/readmepic.jpeg">
-</div>
+# 💼 Salary Predictor
 
----
-Our goal in this project is to examine this dataset of job postings, and predict salaries for a new set of postings. This will involve building a model to predict the salaries given in the test dataset.
+**Estimate a job posting's salary from its role, education, major, industry, company, years of experience and distance from the city. The model is trained on 1 million postings and runs locally with one command.**
 
-A practical use of this is for a HR Department of a large company or a Consulting Outfit that needs real-time solutions in order to make effective employment offers to potential hires.
+This started as a portfolio notebook (EDA, feature engineering and model comparison, found in `Salary Prediction Project.ipynb`; the original write-up is in [docs/ANALYSIS.md](docs/ANALYSIS.md)). It's now a small product: a **FastAPI** service with a gradient-boosting model, and a **React** app for exploring predictions.
 
-It also finds use in getting to understand current realities in the job market and how businesses can leverage this in order to secure high quality talent, whilst keeping hiring costs low.
-
-The primary tool used for this project is Python 3, along with an extensive array of libraries and packages available for the manipulation of data,and development of predictive modeling algorithms.
+![Salary predictor](docs/screenshots/web-senior-finance.png)
 
 ---
 
-This Project is broken down into the following Sections:
+## Quick start
 
-#### Defining the Problem
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
-Our twofold goal in this project is to:
+| Service | URL |
+|---|---|
+| React app (nginx) | http://localhost:8080 |
+| FastAPI (Swagger docs) | http://localhost:8000/docs |
 
-1. Load and Explore Data
-2. Develop and train a suitable prediction model
+The model is **trained during `docker build`** from the committed CSVs in `data/` (1M rows, about 5 seconds). No model file is committed.
 
+## The app
 
-With Python, we created "Data" and "Plots" classes and objects to aid us in extracting, manipulating the given data. We also created "FeatEng" and "ModelEvaluation" Classes to help us with creating new features and selecting the best prediction model for employee salaries.
+### 1. Describe a posting, get a salary
+Pick the job type, industry, degree, major and company, then set experience and distance with the sliders. The prediction updates live, and the curve shows how this exact posting's pay changes from 0 to 24 years of experience.
 
----
+### 2. Compare against the market
+The bottom panel shows average salaries in the training data by job type, industry, degree or major, with the current selection highlighted.
 
-### Dataset Information
+![CEO in oil with a doctorate](docs/screenshots/web-ceo-oil.png)
 
-The Datasets provided contains 7 features which can help us determine salaries of various job roles. Salary is thus identified as the target value of our prediction.
+### 3. Use the API directly
 
-#### Categorical Features
-jobID - Unique for each job entry. Eventually excluded from building the model.
-companyID - Unique for 63 companies represented in the Data
-jobType - Various job roles and levels within the companies
-degree - Level of educational qualifications of employees in those job desctiptions
-major - Subject of study in relation to educational qualifications
-industry - sector of the economy where company belongs i.e. Oil, Health, etc
+```bash
+curl -X POST localhost:8000/predict -H 'content-type: application/json' -d '{"postings":[
+  {"companyId":"COMP37","jobType":"CEO","degree":"DOCTORAL","major":"ENGINEERING","industry":"OIL","yearsExperience":20,"milesFromMetropolis":5},
+  {"companyId":"COMP37","jobType":"JANITOR","degree":"NONE","major":"NONE","industry":"EDUCATION","yearsExperience":1,"milesFromMetropolis":90}]}'
+# {"predictions":[{"salary_k":225.1},{"salary_k":26.3}]}
+```
 
-#### Numerical Features
-yearsExperience - years of experience of employees in each data entry
-milesFromMetropolis - distance of employee residence from the nearest large urban center where his office is located
+| Endpoint | Purpose |
+|---|---|
+| `POST /predict` | Up to 1,000 postings at a time. Returns salary in $1000s. Unknown category values get a 422. |
+| `GET /model` | Model type and holdout metrics |
+| `GET /options` | Valid values for each categorical field |
+| `GET /insights` | Average salary by job type, industry, degree, major and years of experience |
 
-Salary - Our prediction Target 
+![Swagger docs](docs/screenshots/api-docs.png)
 
----
-## Exploratory Data Analysis
+## Architecture
 
-This involves looking at the Data Summaries and Visualizations in order to:
+```mermaid
+flowchart LR
+    csv[(data/train_*.csv<br/>1M postings)] -->|docker build:<br/>python -m salary.train| art[[artifacts/<br/>model.joblib<br/>metrics.json<br/>insights.json]]
+    art --> api[FastAPI<br/>:8000]
+    web[nginx + React<br/>:8080] -->|/api proxy| api
+    user([Browser]) --> web
+```
 
-1. Examine the Data
-2. Discover patterns and relationships between the features
-3. Identify the types of data
-4. Clean up the Data
+```mermaid
+flowchart LR
+    A[companyId, jobType, degree,<br/>major, industry] --> B[OrdinalEncoder] --> D
+    C[yearsExperience,<br/>milesFromMetropolis] --> D[HistGradientBoostingRegressor<br/>native categorical splits]
+    D --> E[salary in $k]
+```
 
+## Model results
 
-Below is an overview of the Train Dataframe (after merging the 'train_features' and 'train_target' files):
+10% holdout (100,000 postings):
 
-![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Train%20Dataframe%20head.jpg)
+| Model | MSE | MAE | R² |
+|---|---|---|---|
+| Baseline: mean salary by job type | 962.7 | – | – |
+| **HistGradientBoosting (served)** | **359.5** | **$15.4k** | **0.760** |
 
+The notebook reported an MSE of 313 for its GradientBoostingRegressor. That number came from group statistics (mean, median, min and max salary per company × job × degree × major × industry) computed on the **full** training set before cross-validation, so the target leaked into the features. With a leak-free holdout, every model tried here plateaus around 359. See [PRODUCTIONIZING.md](PRODUCTIONIZING.md).
 
-#### Visualizing Numerical features
+## Repo layout
 
-We can see from the Distribution and Boxplots below that there is even distribution in the yearsExperience and milesFromMetropolis, whilst the salary feature has a distribution that is close to normal. There is also the presence of outliers in the Salary Boxplot, which requires some attention. This will be dealt with later in the project.
+| Path | What it is |
+|---|---|
+| `src/salary/` | Model definition, training script, FastAPI app |
+| `web/` | React + Vite + TypeScript front end, built and served by nginx |
+| `tests/` | Pipeline, data-loading and API tests (synthetic data) |
+| `data/` | Training features and salaries, plus test features |
+| `Salary Prediction Project.ipynb`, `images/`, `slides/` | The original analysis |
+| `docs/ANALYSIS.md` | The original README and EDA write-up |
+| `legacy/` | The original pickled model and submission CSV (moved, not deleted) |
 
-![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Numerical%20Features%20Visuals.jpg)
+## Development
 
+```bash
+uv sync && uv run pytest -q
+uv run python -m salary.train            # writes artifacts/
+uv run uvicorn salary.api:app --reload   # API on :8000
+cd web && npm install && npm run dev     # React on :5173, proxies /api
+```
 
-#### Visualizing Categorical features
-
-From the Boxplots showing the categorical features(as seen below), we see that:
-
-1. The Senior Job types obviously earn the highest salaries (Strong positive correlation)
-2. Advanced Degrees tend to attract higher salaries
-3. Engineering, Business, Math and Computer Science are on the top end of the salary continuum
-4. The Oil and Finance Industries are the highest paying in the job market represented by this data
-
-![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Categorical%20Features%20(boxplots).jpg)
-
-The trends spelt out above are corroborated in the Heatmap (Correlation Matrix), which shows jobtype as the most strongly correlated feature with salary. Degree and Major have the strongest positive relationship, understandably:
-
-![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Correlation%20Matrix.jpg)
-
-#### Examining the Target Variable (Salary)
-After inspecting the Salary Distribution Boxplot, we can see the existence of outliers. The lower outlier sits exactly on zero. We used the IQR rule to identify these outliers and then made our determination as follows:
-
-1. The entries above the upper bound (220.5) appear legitimate. Most of those roles are senior roles and therefore the values are realistic. We will leave those values in the train dataset.
-
-2. The entries with zero salary appear faulty, as those positions are apparently not volunteer positions. We will proceed to remove those from the training set.
-
-We'll accomplish this by defining a "clean_data" method when creating the Feature Engineering Class
-
-
----
-## Feature Engineering
-
-By applying label encoding to transform the categorical features and by grouping them. The group statistics were selected as new features: group_mean(mean salary), group_median(median salary), group_min(minimum salary), group_max(maximum salary), group_mad(mean absolute deviation)
-
-Also we removed the zero salary values with a clean_data method.
-
----
-## Model Selection and Evaluation
-
-We selected three different Regression Algorithms for Evaluation:
-1. Linear Regression
-2. Random Forest Regression
-3. Gradient Boosting Regressor
-
-The Evaluation Metric selected is the MSE (Mean Squared Error).
-
-For our Baseline Model, we used the calculated mean of the target, and included that amongst the models selected for Evaluation. The model with the lowest MSE was selected as the best model.
-
-### Best Model
-After passing the models through our evaluation code, we ended up with the following MSE values:
-
-Baseline: 644.26
-Linear Regression: 358.15
-Random Forest Regressor: 313.27
-Gradient Boosting Regressor: 313.06 (selected as best model)
-
-Key predictors for this model is the group mean salary, followed by yearsExperience, as shown in the Feature Importances plot:
-
-![alt text](https://github.com/ovokpus/Salary-Prediction-Portfolio/blob/master/images/Feature%20Importances.jpg)
-
----
-## Conclusion/Next Steps
-
-• Files Saved for further testing/deployment
-• We could seek to further improve the model by creating new features around the yearsExperience, and miles from metropolis features
+CI (GitHub Actions) runs `uv sync --frozen` and `pytest`, then `docker compose build`, which also trains the model.
