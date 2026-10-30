@@ -1,5 +1,7 @@
 # 💼 Salary Predictor
 
+<p align="center"><img src="docs/assets/hero.svg" alt="Salary Predictor" width="100%"/></p>
+
 **Estimate a job posting's salary from its role, education, major, industry, company, years of experience and distance from the city. The model is trained on 1 million postings and runs locally with one command.**
 
 This started as a portfolio notebook (EDA, feature engineering and model comparison, found in `Salary Prediction Project.ipynb`; the original write-up is in [docs/ANALYSIS.md](docs/ANALYSIS.md)). It's now a small product: a **FastAPI** service with a gradient-boosting model, and a **React** app for exploring predictions.
@@ -51,6 +53,8 @@ curl -X POST localhost:8000/predict -H 'content-type: application/json' -d '{"po
 ![Swagger docs](docs/screenshots/api-docs.png)
 
 ## Architecture
+
+<p align="center"><img src="docs/assets/flow.svg" alt="Salary Predictor data flow" width="100%"/></p>
 
 ```mermaid
 flowchart LR
