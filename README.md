@@ -10,6 +10,10 @@ This started as a portfolio notebook (EDA, feature engineering and model compari
 
 ---
 
+## Business case
+
+Recruiters often need a first salary range for a posting before compensation reviews it. This app estimates a posting's salary from role, degree, major, industry, experience and location, and shows how pay changes with experience. It is trained on a synthetic teaching dataset, so it shows the workflow rather than real market pay. [docs/BUSINESS_CASE.md](docs/BUSINESS_CASE.md) covers the use cases, an illustrative ROI model and the fairness risks.
+
 ## Quick start
 
 ```bash
