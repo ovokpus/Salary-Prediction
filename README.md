@@ -1,6 +1,6 @@
-<p align="center"><img src="assets/banner.jpg" alt="Brass balance scale holding a weight and a blank card beside a brass ruler on a dark surface" width="100%"></p>
-
 # 💼 Salary Predictor
+
+<p align="center"><img src="assets/banner.jpg" alt="Brass balance scale holding a weight and a blank card beside a brass ruler on a dark surface" width="100%"></p>
 
 <p align="center"><img src="docs/assets/hero.svg" alt="Salary Predictor" width="100%"/></p>
 
