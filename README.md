@@ -1,5 +1,7 @@
 # 💼 Salary Predictor
 
+<p align="center"><img src="assets/banner.jpg" alt="Brass balance scale holding a weight and a blank card beside a brass ruler on a dark surface" width="100%"></p>
+
 <p align="center"><img src="docs/assets/hero.svg" alt="Salary Predictor" width="100%"/></p>
 
 **Estimate a job posting's salary from its role, education, major, industry, company, years of experience and distance from the city. The model is trained on 1 million postings and runs locally with one command.**
